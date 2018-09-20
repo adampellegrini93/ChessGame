@@ -6,5 +6,5 @@ public class ChessGame
     {
         System.out.print("test");
     }
-    
+    int i = 0;
 }
