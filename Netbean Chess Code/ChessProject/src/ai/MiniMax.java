@@ -18,7 +18,7 @@ public class MiniMax implements MoveAlgorithm{
     private final BoardEvaluator boardEvaluator;
     
     public MiniMax(){
-        this.boardEvaluator = null;
+        this.boardEvaluator = new BasicBoardEvaluator();
     }
     
     @Override
@@ -28,7 +28,6 @@ public class MiniMax implements MoveAlgorithm{
     
     @Override
     public Move execute(Board board, int depth){
-        
         
         final long startTime = System.currentTimeMillis();
         
