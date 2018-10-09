@@ -15,6 +15,11 @@ import player.Player;
  */
 public final class BasicBoardEvaluator implements BoardEvaluator {
 
+    private static final int CHECK_BONUS = 75;
+    private static final int CHECK_MATE_BONUS = 1000;
+    private static final int DEPTH_BONUS = 100;
+    private static final int CASTLE_BONUS = 60;
+    
     @Override
     public int evaluate(final Board board, final int depth) {
         
@@ -25,7 +30,34 @@ public final class BasicBoardEvaluator implements BoardEvaluator {
     }
     
     private int scorePlayer(final Board board, final Player player, final int depth) {
-        return pieceValue(player); // this plus certain factors (i.e. checkmate, mobility, castled, etc.)
+        return pieceValue(player) + 
+                mobility(player) + 
+                check(player) + 
+                checkmate(player, depth) + 
+                castled(player);
+        // this plus certain factors (i.e. checkmate, mobility, castled, etc.)
+    }
+    
+    //for the given board being looked at, how many legal moves does the player have?
+    private static int mobility(final Player player) {
+        return player.getLegalMoves().size();
+    }
+    
+    private static int check(final Player player) {
+        return player.getOpponent().isInCheck() ? CHECK_BONUS : 0;
+    }
+    
+    //if CHECKMATE is found sooner, before depth=0, give a larger bonus
+    private static int checkmate(final Player player, int depth) {
+        return player.getOpponent().isInCheckMate() ? CHECK_MATE_BONUS * depthBonus(depth): 0;
+    }
+    
+    private static int depthBonus(int depth) {
+        return depth == 0 ? 1 : DEPTH_BONUS * depth;
+    }
+    
+    private static int castled(Player player) {
+        return player.isCastled() ? CASTLE_BONUS : 0;
     }
     
     private static int pieceValue(final Player player){
