@@ -16,9 +16,11 @@ import player.MoveTransition;
 public class MiniMax implements MoveAlgorithm{
     
     private final BoardEvaluator boardEvaluator;
+    private final int searchDepth;
     
-    public MiniMax(){
+    public MiniMax(final int searchDepth){
         this.boardEvaluator = new BasicBoardEvaluator();
+        this.searchDepth = searchDepth;
     }
     
     @Override
@@ -27,7 +29,7 @@ public class MiniMax implements MoveAlgorithm{
     }
     
     @Override
-    public Move execute(Board board, int depth){
+    public Move execute(Board board){
         
         final long startTime = System.currentTimeMillis();
         
@@ -38,7 +40,7 @@ public class MiniMax implements MoveAlgorithm{
         
         int currentValue;
         
-        System.out.println(board.currentPlayer() + " THINKING with depth = " + depth);
+        System.out.println(board.currentPlayer() + " THINKING with depth = " + this.searchDepth);
         
         int numMoves = board.currentPlayer().getLegalMoves().size();
         
@@ -47,8 +49,8 @@ public class MiniMax implements MoveAlgorithm{
             if(moveTransition.getMoveStatus().isDone()) {
                 //if current player is white, next move is a minimizing move, vice versa
                 currentValue = board.currentPlayer().getAlliance().isWhite() ?
-                        min(moveTransition.getTransitionBoard(), depth - 1) :
-                        max(moveTransition.getTransitionBoard(), depth - 1);
+                        min(moveTransition.getTransitionBoard(), this.searchDepth - 1) :
+                        max(moveTransition.getTransitionBoard(), this.searchDepth - 1);
                 
                 if(board.currentPlayer().getAlliance().isWhite() && currentValue >= maxSeenValue) {
                     maxSeenValue = currentValue;
@@ -66,7 +68,7 @@ public class MiniMax implements MoveAlgorithm{
     }
     
     public int min (final Board board, final int depth){
-        if(depth == 0) { //TO ADD: || gameover, then evaluate the board
+        if(depth == 0 || isEndGameScenario(board)) {
             return this.boardEvaluator.evaluate(board, depth);
         }
         //Initialize the lowest seen value with the highest possible value
@@ -85,8 +87,14 @@ public class MiniMax implements MoveAlgorithm{
         return minSeenValue;
     }
     
+    //Check current board for either checkmate or stalemate
+    private static boolean isEndGameScenario(final Board board) {
+        return board.currentPlayer().isInCheckMate() ||
+               board.currentPlayer().isInStaleMate();
+    }
+    
     public int max (final Board board, final int depth){
-        if(depth == 0) { //TO ADD: || gameover, then evaluate the board
+        if(depth == 0 || isEndGameScenario(board)) {
             return this.boardEvaluator.evaluate(board, depth);
         }
         //Initialize the highest seen value with the lowest possible value

@@ -14,6 +14,6 @@ import board.Move;
  */
 public interface MoveAlgorithm {
     
-    Move execute(Board board, int depth);
+    Move execute(Board board);
     
 }
